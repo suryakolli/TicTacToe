@@ -1,14 +1,28 @@
 package com.lld.tictactoe.controllers;
 
-import com.lld.tictactoe.models.Game;
-import com.lld.tictactoe.models.GameStatus;
-import com.lld.tictactoe.models.Move;
-import com.lld.tictactoe.models.Player;
+import com.lld.tictactoe.exceptions.EmptyMovesUndoException;
+import com.lld.tictactoe.factories.PlayerFactory;
+import com.lld.tictactoe.models.*;
+import com.lld.tictactoe.strategies.botplayingstrategies.RandomBotPlayingStrategy;
+import com.lld.tictactoe.strategies.gamewinningstrategies.GameWinningStrategy;
+import com.lld.tictactoe.strategies.gamewinningstrategies.OrderOneGameWinningStrategy;
+
+import java.util.List;
 
 public class GameController {
     // TODO implement these methods
-    public Game createGame() {
-        return null;
+    public Game createGame(int dimensionOfBoard, List<Player> players, List<GameWinningStrategy> strategies) {
+        Game game = null;
+        try {
+            game = Game.create()
+                    .withBoard(new Board(dimensionOfBoard))
+                    .addPlayers(players)
+                    .addGameWinningStrategies(strategies)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return game;
     }
 
     public MoveResult makeMove(Game game, Move move) {
@@ -16,6 +30,11 @@ public class GameController {
     }
 
     public boolean undo(Game game) {
+        try {
+            return game.undo();
+        } catch (EmptyMovesUndoException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 

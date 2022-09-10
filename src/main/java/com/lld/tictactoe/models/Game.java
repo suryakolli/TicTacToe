@@ -1,5 +1,6 @@
 package com.lld.tictactoe.models;
 
+import com.lld.tictactoe.exceptions.EmptyMovesUndoException;
 import com.lld.tictactoe.exceptions.MultipleBotsException;
 import com.lld.tictactoe.strategies.gamewinningstrategies.GameWinningStrategy;
 
@@ -19,6 +20,22 @@ public class Game {
         return new Builder();
     }
 
+    public boolean undo() throws EmptyMovesUndoException{
+
+        if(this.moves.size() == 0) {
+            // TODO handle edge case
+            throw new EmptyMovesUndoException();
+        }
+
+
+        Move lastMove = this.moves.get(this.moves.size() - 1);
+        Cell relevantCell = lastMove.getCell();
+        relevantCell.clearCell();
+        this.lastMovedPlayerIndex = (this.lastMovedPlayerIndex + this.players.size()) % this.players.size();
+        this.moves.remove(this.moves.size() - 1);
+        return true;
+    }
+
     public static class Builder {
         private List<Player> players = new ArrayList<>();
         private Board board;
@@ -35,9 +52,7 @@ public class Game {
         }
 
         public Builder addPlayers(List<Player> players) {
-            for(Player player: players) {
-                this.players.add(player);
-            }
+            this.players.addAll(players);
             return this;
         }
 
@@ -47,8 +62,13 @@ public class Game {
         }
 
 
-        public Builder addGameWinningStrategies(GameWinningStrategy gameWinningStrategy) {
+        public Builder addGameWinningStrategy(GameWinningStrategy gameWinningStrategy) {
             this.gameWinningStrategies.add(gameWinningStrategy);
+            return this;
+        }
+
+        public Builder addGameWinningStrategies(List<GameWinningStrategy> gameWinningStrategies) {
+            this.gameWinningStrategies.addAll(gameWinningStrategies);
             return this;
         }
 
